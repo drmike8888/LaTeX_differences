@@ -1,0 +1,57 @@
+\documentclass[letterpaper,12pt]{manning-new}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{tikz}
+\usetikzlibrary{arrows, shapes, arrows.meta, positioning}
+\usetikzlibrary{decorations.pathreplacing}
+%\usepackage{titlesec} 
+\usepackage{float} 
+\usepackage{fancyhdr} % required by poemscol
+\usepackage{poemscol} % required to typeset poems
+\fancyfoot{}
+\usepackage{graphicx}
+\usepackage[numbers]{natbib}
+\usepackage{chapterbib}
+\renewcommand{\bibname}{Chapter Bibliography}
+\usepackage[nottoc]{tocbibind}
+\def\arrowDown/#1/#2/#3/{%
+    \noindent\llap{\raise2pt\vbox to
+        0pt{\vss \hsize=0pt{\catcode`\$=3
+                \ifoutside
+                \llap{\tikz \draw [>=stealth', >-] (0,0) -- (#1,0) -- (#1,#2) node
+                    [left] {\llap{\vbox to 0pt{\smcodetitlefont
+                                \hsize=1.5in 
+                                \raggedleft
+                                #3
+                                \vss}}};}
+                \else 
+                \llap{\tikz \draw [>=stealth', >-] (0,0) -- (#1,0) -- (#1,#2) node [right] {\rlap{\vbox to 0pt{\smcodetitlefont
+                                \hsize=1.5in 
+                                \noindent
+                                #3
+                                \vss}}};}
+                \fi
+                %
+        }}\hskip4pt}\global\outsidefalse}
+
+%DIF UNDERLINE PREAMBLE %DIF PREAMBLE
+\RequirePackage[normalem]{ulem} %DIF PREAMBLE
+\RequirePackage{color}\definecolor{RED}{rgb}{1,0,0}\definecolor{BLUE}{rgb}{0,0,1} %DIF PREAMBLE
+\providecommand{\DIFadd}[1]{{\protect\color{blue}\uwave{#1}}} %DIF PREAMBLE
+\providecommand{\DIFdel}[1]{{\protect\color{red}\sout{#1}}}                      %DIF PREAMBLE
+%DIF 
+\RequirePackage{changebar} %DIF PREAMBLE
+\providecommand{\DIFaddbegin}{\protect\cbstart} %DIF PREAMBLE
+\providecommand{\DIFaddend}{\protect\cbend} %DIF PREAMBLE
+\providecommand{\DIFdelbegin}{\protect\cbdelete} %DIF PREAMBLE
+\providecommand{\DIFdelend}{} %DIF PREAMBLE
+%DIF IDENTICAL PREAMBLE %DIF PREAMBLE
+\providecommand{\DIFaddFL}[1]{\DIFadd{#1}} %DIF PREAMBLE
+\providecommand{\DIFdelFL}[1]{\DIFdel{#1}} %DIF PREAMBLE
+\providecommand{\DIFaddbeginFL}{\DIFaddbegin} %DIF PREAMBLE
+\providecommand{\DIFaddendFL}{\DIFaddend} %DIF PREAMBLE
+\providecommand{\DIFdelbeginFL}{\DIFdelbegin} %DIF PREAMBLE
+\providecommand{\DIFdelendFL}{\DIFdelend} %DIF PREAMBLE
+%DIF END PREAMBLE EXTENSION ADDED BY LATEXDIFF
+
+\begin{document}
