@@ -1,0 +1,133 @@
+# LaTeX_differences
+Break up LaTeX book into chapters and show differences between directories using latexdiff.
+This file is copied from LaTeX_commands.txt and modified.
+
+I use Texstudio to create latex files. There is one master file which
+lists all the contained files in order. The output from Texstudio
+includes a great many files which allow it to create a bibliography,
+table of contents, etc. The main output is a single PDF which contains
+the entire book.
+
+The first problem is converting this single *.pdf output file into one
+file for each chapter. Fortunately xelatex creates a log
+file. Unfortunately, it starts renumbering pages after Part 1. So the
+program which scans the log file to create a list of page numbers has
+to be custom edited on occasion if the size of the Part 1 section
+changes.
+
+The script for splitting out the individual chapters is this:
+
+#!/bin/bash
+
+./getpages elliptic_curve_dev.log
+./pdfsplit
+chmod 775 genpdf.sh
+echo "splitting out pages"
+./genpdf.sh
+dir="rosing2_elliptic_curve_dev_`date +"%Y-%m-%d-%H-%M"`"
+mkdir $dir
+echo "pdf's to $dir"
+mv *rosing2*.pdf $dir
+mkdir $dir/rosing2_elliptic_curve_dev_tex
+cp *.png $dir/rosing2_elliptic_curve_dev_tex
+cp *.tex $dir/rosing2_elliptic_curve_dev_tex
+cp *.bib $dir/rosing2_elliptic_curve_dev_tex
+
+The program getpages scans the log file and creates a file called
+"pages.list". This file is read in by program pdfsplit. The program
+pdfsplit creates a new bash script file called "genpdf.sh".
+
+The genpdf.sh file contains one command using pdftk for each
+chapter. As you can see in the above script, the genpdf scrpt is made
+executable and then executed.
+
+I then create a directory with date and time and move all the chapter
+files (and part, appendicies, TOC, etc.) to that directory along with
+all the source files.
+
+Now I have a directory with every chapter separated so it is possible
+to create differences between these dated directories. The script that
+does this task is this:
+
+#!/bin/bash
+# ORDER: old directory first, new directory second
+
+dir="rosing2_elliptic_curve_dev_diff_`date +"%Y-%m-%d-%H-%M"`"
+mkdir $dir
+
+dir1="$1/rosing2_elliptic_curve_dev_tex"
+dir2="$2/rosing2_elliptic_curve_dev_tex"
+
+files1=(ch*.tex)
+files2=(pa*.tex)
+
+lench=${#files1[@]}
+for ((i=0; i<$lench; i++))
+do
+    latexdiff -c ld.cfg --graphics-markup=1 "$dir1/${files1[$i]}" "$dir2/${files1[$i]}" > "$dir/${files1[$i]}"
+    ./mvdef "$dir/${files1[$i]}"
+done
+
+lenpa=${#files2[@]}
+for ((i=0; i<$lenpa; i++))
+do
+    latexdiff  -c ld.cfg  --graphics-markup=1 "$dir1/${files2[$i]}" "$dir2/${files2[$i]}"  > "$dir/${files2[$i]}"
+    ./mvdef "$dir/${files2[$i]}"
+done
+
+latexdiff  -c ld.cfg --graphics-markup=1 $dir1/appendix.tex $dir2/appendix.tex > $dir/appendix.tex
+./mvdef $dir/appendix.tex
+latexdiff  -c ld.cfg --graphics-markup=1  $dir1/appendix_b.tex $dir2/appendix_b.tex  > $dir/appendix_b.tex
+./mvdef $dir/appendix_b.tex
+latexdiff  -c ld.cfg --graphics-markup=1  $dir1/preface.tex $dir2/preface.tex > $dir/preface.tex
+./mvdef $dir/preface.tex
+latexdiff  -c ld.cfg --graphics-markup=1  $dir1/roadmap.tex $dir2/roadmap.tex > $dir/roadmap.tex
+./mvdef $dir/roadmap.tex
+# bring in files so xelatex can run
+echo "copy basic files"
+cp -r fonts $dir
+cp manning-new.cls $dir
+cp *.png $dir
+cp *.jpg $dir
+echo "creating pdfs"
+cd $dir
+for f in *.text
+do
+    echo "doing $f"
+    cat ../diff_preamble.text "$f" ../end.text > "${f%.text}.tex"
+    xelatex -synctex=1 -interaction=nonstopmode "${f%.text}.tex" > /dev/null
+    rm $f
+done
+# clean up for upload to Manning
+rm *.aux
+rm *.cb
+rm *.cb2
+rm *.idx
+rm *.log
+rm *.gz
+rm *.png
+rm *.jpg
+rm *.cls
+rm -r fonts
+cd ..
+
+The first thing is to create another dated directory, this time with
+"diff" in the name. This script is based on the program latexdiff
+which operates on the *.tex files. These were copied into a directory
+within the dated splitup directory so the directory name access is
+pretty long.
+
+I also just used brute force to run latexdiff on each section. The
+chapters and parts were easy to do with one line, but the appendices,
+roadmap, and preface all needed separate commands.
+
+Once the differences are created in *.tex I have to clean up the
+files. The problem comes from the unique format used in annotations.
+The program mvdef patches these back to something xelatex can use and
+also renames the output file *.text.
+
+I then add a pre and post amble file to each *.text file and rename
+that *.tex At this point xelatex can create a differences file. The
+output is almost complete - but the changes to graphics are not
+processed. The changes are definitely marked in the *.tex file, you
+just don't see anything in the PDF.
