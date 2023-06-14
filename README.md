@@ -1,7 +1,7 @@
 # LaTeX_differences
 Break up LaTeX book into chapters and show differences between directories using latexdiff.
 This file is copied from LaTeX_commands.txt and modified.
-
+```
 I use Texstudio to create latex files. There is one master file which
 lists all the contained files in order. The output from Texstudio
 includes a great many files which allow it to create a bibliography,
@@ -131,3 +131,4 @@ that *.tex At this point xelatex can create a differences file. The
 output is almost complete - but the changes to graphics are not
 processed. The changes are definitely marked in the *.tex file, you
 just don't see anything in the PDF.
+```
